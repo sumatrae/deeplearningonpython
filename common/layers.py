@@ -258,11 +258,15 @@ class Pooling:
         out_h = int(1 + (H - self.pool_h) / self.stride)
         out_w = int(1 + (W - self.pool_w) / self.stride)
 
+        #展开输入数据
         col = im2col(x, self.pool_h, self.pool_w, self.stride, self.pad)
         col = col.reshape(-1, self.pool_h*self.pool_w)
 
+        #求各行最大值
         arg_max = np.argmax(col, axis=1)
         out = np.max(col, axis=1)
+
+        #转换为合适的输出大小
         out = out.reshape(N, out_h, out_w, C).transpose(0, 3, 1, 2)
 
         self.x = x
@@ -275,6 +279,7 @@ class Pooling:
         
         pool_size = self.pool_h * self.pool_w
         dmax = np.zeros((dout.size, pool_size))
+
         dmax[np.arange(self.arg_max.size), self.arg_max.flatten()] = dout.flatten()
         dmax = dmax.reshape(dout.shape + (pool_size,)) 
         
